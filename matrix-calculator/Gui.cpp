@@ -1,7 +1,7 @@
 #include "Gui.h"
 
 gui::Button::Button(float x, float y, float width, float height, std::string Text,
-	sf::Color IdleColor, sf::Color HoverColor, sf::Color ActiveColor)
+	sf::Color IdleColor, sf::Color HoverColor, sf::Color ActiveColor, const int& Size)
 {
 	m_ButtonState = BUTTON_STATES::BTN_IDLE;
 
@@ -14,7 +14,7 @@ gui::Button::Button(float x, float y, float width, float height, std::string Tex
 	m_Text.setFont(m_Font);
 	m_Text.setString(Text);
 	m_Text.setFillColor(sf::Color::White);
-	m_Text.setCharacterSize(25);
+	m_Text.setCharacterSize(Size); // 25
 	m_Text.setPosition(
 		m_Button.getPosition().x + (width / 2.f) - m_Text.getGlobalBounds().width / 2.f,
 		m_Button.getPosition().y + (height / 2.f) - m_Text.getGlobalBounds().height / 1.3f /*2.f*/
@@ -100,15 +100,15 @@ void gui::Button::Render(sf::RenderTarget* Target)
 
 gui::DropDownList::DropDownList(float x, float y, float width, float height,
 	std::vector<std::string> List, unsigned NrOfElements, unsigned default_index)
-	: m_ShowList(false), m_KeyTimeMax(2.f), m_KeyTime(0.f)
+	: m_ShowList(false)
 {
 	m_ActiveElement = new gui::Button(x, y, width, height, List[0],
-		sf::Color(100, 100, 100, 100), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+		sf::Color(100, 100, 100, 100), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200), 25);
 
 	for (int i = 0; i < NrOfElements; ++i)
 	{
 		m_List.push_back(new gui::Button(x, y + ((i + 1) * height), width, height, List[i],
-			sf::Color(100, 100, 100, 100), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200)));
+			sf::Color(100, 100, 100, 100), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200), 25));
 	}
 
 	// Triangle on the Drop Down List
@@ -145,9 +145,7 @@ void gui::DropDownList::UpdateButtonState(const sf::Vector2f& MousePos)
 
 void gui::DropDownList::Update(const sf::Vector2f& MousePos)
 {
-
-	//m_ActiveElement->Update(MousePos);
-	if (m_ActiveElement->Contains(MousePos)/* && this->GetKeyTime()*/)
+	if (m_ActiveElement->Contains(MousePos))
 	{
 		if (m_ShowList)
 		{
@@ -196,3 +194,146 @@ void gui::DropDownList::Render(sf::RenderTarget* Target)
 ///////////////////////////////////////////////////////////////////
 
 
+gui::TextBox::TextBox(const int& CharSize, sf::Color Color, const sf::Vector2f& Pos, const sf::Vector2f& BackgroundSize)
+	: m_IsSelected(false)
+{
+	m_TextboxBackground.setSize(BackgroundSize);
+	m_TextboxBackground.setFillColor(sf::Color(152, 152, 156));
+	m_TextboxBackground.setPosition(Pos);
+
+	m_Font.loadFromFile("Fonts/font1.ttf");
+	m_Textbox.setFont(m_Font);
+	m_Textbox.setFillColor(Color);
+	m_Textbox.setCharacterSize(CharSize);
+	m_Textbox.setPosition(
+		m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
+		m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
+	);
+
+}
+
+void gui::TextBox::InputLogic(const int& CharTyped)
+{
+	if (CharTyped != DELETE_KEY && CharTyped != ENTER_KEY && CharTyped != ESCAPE_KEY)
+	{
+		m_Text.seekp(0, m_Text.end);
+		m_Text << static_cast<char>(CharTyped);
+	}
+	else if (CharTyped == DELETE_KEY)
+	{
+		if (m_Text.str().length() > 0)
+			DeleteLastChar();
+	}
+	m_Textbox.setString(m_Text.str() + "|");
+}
+
+void gui::TextBox::DeleteLastChar()
+{
+	std::string temp = m_Text.str();
+	temp.pop_back();
+	m_Text.str(temp);
+
+	m_Textbox.setString(m_Text.str());
+}
+
+
+void gui::TextBox::SetLimit(const bool& TrueOrFalse)
+{
+	m_HasLimit = TrueOrFalse;
+}
+
+void gui::TextBox::SetLimit(const bool& TrueOrFalse, const int& Limit)
+{
+	m_HasLimit = TrueOrFalse;
+	m_Limit = Limit;
+}
+
+
+bool gui::TextBox::IsSelected()
+{
+	return m_IsSelected;
+}
+
+void gui::TextBox::Select(const bool& IsSelected)
+{
+	m_IsSelected = IsSelected;
+	if (m_IsSelected)
+		m_Textbox.setString(m_Text.str() + "|");
+	else
+		m_Textbox.setString(m_Text.str());
+}	
+
+bool gui::TextBox::Contains(const sf::Vector2f& Something)
+{
+	return m_TextboxBackground.getGlobalBounds().contains(Something);
+}
+
+
+std::string gui::TextBox::GetText()
+{
+	return m_Text.str();
+}
+
+void gui::TextBox::Type(sf::Event Event)
+{
+	if (m_IsSelected)
+	{
+		int CharTyped = Event.text.unicode;
+		if (CharTyped < 128)
+		{
+			if (m_HasLimit)
+			{
+				if (m_Text.str().length() <= m_Limit)
+				{
+					InputLogic(CharTyped);
+				}
+				else if (m_Text.str().length() > m_Limit && CharTyped == DELETE_KEY)
+					DeleteLastChar();
+			}
+			else
+				InputLogic(CharTyped);
+		}
+	}
+}
+
+void gui::TextBox::UpdateTextPosition()
+{
+	if (m_Text.str().empty())
+	{
+		m_Textbox.setPosition(
+			m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
+			m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
+		);
+	}
+	else
+	{
+		m_Textbox.setPosition(
+			m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f + 2,
+			m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
+		);
+	}
+}
+
+void gui::TextBox::UpdateOutline()
+{
+	if (m_IsSelected)
+	{
+		m_TextboxBackground.setOutlineColor(sf::Color::Yellow);
+		m_TextboxBackground.setOutlineThickness(2);
+	}
+	else
+		m_TextboxBackground.setOutlineThickness(0);
+
+}
+
+void gui::TextBox::Update()
+{
+	UpdateTextPosition();
+	UpdateOutline();
+}
+
+void gui::TextBox::Render(sf::RenderWindow* Window)
+{
+	Window->draw(m_TextboxBackground);
+	Window->draw(m_Textbox);
+}

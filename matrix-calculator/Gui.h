@@ -8,10 +8,16 @@
 #include <set>
 #include <algorithm>
 #include <chrono>
+#include <sstream>
+#include <thread>
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 #include "SFML/System.hpp"
+
+#define DELETE_KEY 8
+#define ENTER_KEY 13
+#define ESCAPE_KEY 27
 
 enum class BUTTON_STATES
 {
@@ -37,7 +43,7 @@ namespace gui
 
 	public:
 		Button(float, float, float, float, std::string,
-			sf::Color, sf::Color, sf::Color);
+			sf::Color, sf::Color, sf::Color, const int&);
 		~Button();
 
 		bool Contains(const sf::Vector2f&) const;
@@ -53,13 +59,9 @@ namespace gui
 	class DropDownList
 	{
 	private:
-		//sf::Font m_Font;
 		gui::Button* m_ActiveElement;
 		std::vector<gui::Button*> m_List;
 		bool m_ShowList;
-
-		float m_KeyTime;
-		float m_KeyTimeMax;
 
 		sf::CircleShape m_Triangle;
 
@@ -72,6 +74,46 @@ namespace gui
 
 		void Update(const sf::Vector2f&);
 		void Render(sf::RenderTarget*);
+	};
+
+	class TextBox
+	{
+	private:
+		sf::Font m_Font;
+		sf::Text m_Textbox;
+		std::ostringstream m_Text;
+		bool m_IsSelected;
+		bool m_HasLimit = false;
+		int m_Limit;
+
+		sf::RectangleShape m_TextboxBackground;
+
+		void InputLogic(const int&);
+		void DeleteLastChar();
+		void UpdateTextPosition();
+		void UpdateOutline();
+
+	public:
+		TextBox() = default;
+		TextBox(const int&, sf::Color, const sf::Vector2f&, const sf::Vector2f&);
+
+	
+
+		void SetLimit(const bool&);
+		void SetLimit(const bool&, const int&);
+
+		bool IsSelected();
+		void Select(const bool&);
+		bool Contains(const sf::Vector2f&);
+		
+
+		std::string GetText();
+
+		void Type(sf::Event);
+
+		void Update();
+		void Render(sf::RenderWindow*);
+
 	};
 }
 
