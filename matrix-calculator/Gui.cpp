@@ -268,6 +268,11 @@ bool gui::TextBox::Contains(const sf::Vector2f& Something)
 	return m_TextboxBackground.getGlobalBounds().contains(Something);
 }
 
+sf::Vector2f gui::TextBox::GetPosition()
+{
+	return m_TextboxBackground.getPosition();
+}
+
 
 std::string gui::TextBox::GetText()
 {
@@ -279,15 +284,15 @@ void gui::TextBox::Type(sf::Event Event)
 	if (m_IsSelected)
 	{
 		int CharTyped = Event.text.unicode;
-		if (CharTyped < 128)
+		if ((CharTyped >= 48 && CharTyped <= 57) || CharTyped == 46 || CharTyped == 45 || CharTyped == DELETE_KEY)
 		{
 			if (m_HasLimit)
 			{
-				if (m_Text.str().length() <= m_Limit)
+				if (m_Text.str().length() < m_Limit)
 				{
 					InputLogic(CharTyped);
 				}
-				else if (m_Text.str().length() > m_Limit && CharTyped == DELETE_KEY)
+				else if (CharTyped == DELETE_KEY)
 					DeleteLastChar();
 			}
 			else
@@ -298,20 +303,10 @@ void gui::TextBox::Type(sf::Event Event)
 
 void gui::TextBox::UpdateTextPosition()
 {
-	if (m_Text.str().empty())
-	{
-		m_Textbox.setPosition(
-			m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
-			m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
-		);
-	}
-	else
-	{
-		m_Textbox.setPosition(
-			m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f + 2,
-			m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
-		);
-	}
+	m_Textbox.setPosition(
+		m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
+		m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
+	);
 }
 
 void gui::TextBox::UpdateOutline()

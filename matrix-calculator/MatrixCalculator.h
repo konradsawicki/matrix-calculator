@@ -11,6 +11,9 @@ private:
 
 	sf::Texture m_BackgroundTexture;
 	sf::RectangleShape m_Background;
+	sf::Font m_TitleFont;
+	sf::Text m_TitleText;
+
 	gui::TextBox* m_ActiveTextbox;
 	std::vector<gui::TextBox*> m_Matrix;
 	bool m_ActiveFlag;

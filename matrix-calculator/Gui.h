@@ -106,6 +106,7 @@ namespace gui
 		void Select(const bool&);
 		bool Contains(const sf::Vector2f&);
 		
+		sf::Vector2f GetPosition();
 
 		std::string GetText();
 
