@@ -107,14 +107,41 @@ namespace gui
 		bool Contains(const sf::Vector2f&);
 		
 		sf::Vector2f GetPosition();
-
 		std::string GetText();
 
 		void Type(sf::Event);
 
 		void Update();
 		void Render(sf::RenderWindow*);
+	};
 
+	class RadioButton
+	{
+	private:
+		sf::RectangleShape m_ButtonBackground;
+		sf::CircleShape m_OuterCircle;
+		sf::CircleShape m_InnerCircle;
+		sf::Font m_FontLight;
+		sf::Font m_FontBold;
+		sf::Text m_Text;
+
+		sf::Color m_InactiveColor;
+		sf::Color m_ActiveColor;
+
+		bool m_ActiveFlag;
+
+	public:
+		RadioButton(const float&, const sf::Vector2f&, const std::string&);
+		bool Contains(const sf::Vector2f&);
+
+		void SetActive();
+		void SetInactive();
+
+		bool IsActive();
+		sf::Vector2f GetPosition();
+
+		void Update();
+		void Render(sf::RenderWindow*);
 	};
 }
 

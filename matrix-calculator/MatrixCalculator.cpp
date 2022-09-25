@@ -41,21 +41,45 @@ void MatrixCalculator::InitGui()
 			m_Matrix.back()->SetLimit(true, 6);
 		}
 	}
+
+	for (int k = 0, i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (m_RadioButtons.empty())
+			{
+				m_RadioButtons.push_back(new gui::RadioButton(10, { 100, 100 }, m_Operations[k]));
+				TempPos = m_RadioButtons.back()->GetPosition();
+			}
+			else
+				m_RadioButtons.push_back(new gui::RadioButton(10, { TempPos.x + j * 150, TempPos.y + i * 50 }, m_Operations[k]));
+			k++;
+		}
+	}
 }
 
 MatrixCalculator::MatrixCalculator()
-	: m_ActiveFlag(false), m_ActiveTextbox(nullptr)
+	: m_ActiveFlag(false), m_ActiveTextbox(nullptr), m_MouseTextFlag(false), m_MouseHandFlag(false),
+		m_Operations({"Add", "Substract", "Multiply", "Transpose", "Determinant", "Inverse" })
 {
     std::cout << "Starting Matrix Calculator!\n";
     InitWindow();
 	InitBackground();
 	InitGui();
+	//std::thread Thread(&MatrixCalculator::UpdateMouseText, std::ref(*this));
+	//Thread.detach();
 }
 
 MatrixCalculator::~MatrixCalculator()
 {
     delete m_Window;
 	for (auto& e : m_Matrix)
+	{
+		delete e;
+	}
+
+
+	for (auto e : m_RadioButtons)
 	{
 		delete e;
 	}
@@ -98,6 +122,19 @@ void MatrixCalculator::UpdateSFMLEvents()
 						}
 					}
 				}
+
+				for (auto e : m_RadioButtons)
+				{
+					if (e->Contains(m_MousePos) && e != m_ActiveRadioButton)
+					{
+						if (m_ActiveRadioButton)
+						{
+							m_ActiveRadioButton->SetInactive();
+						}
+						m_ActiveRadioButton = e;
+						m_ActiveRadioButton->SetActive();
+					}
+				}
 			}
 			break;
 		case sf::Event::TextEntered:
@@ -138,16 +175,66 @@ void MatrixCalculator::UpdateGui()
 		m_ActiveTextbox->Update();
 }
 
+
 void MatrixCalculator::UpdateMousePosition()
 {
 	m_MousePos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*m_Window));;
 }
 
+void MatrixCalculator::UpdateMouseLook()
+{
+	if (std::any_of(m_Matrix.begin(), m_Matrix.end(), [&](const auto& x) { return x->Contains(m_MousePos); }))
+	{
+		if (m_Cursor.loadFromSystem(sf::Cursor::Text) && !m_MouseTextFlag)
+		{
+				m_Window->setMouseCursor(m_Cursor);
+				m_MouseTextFlag = true;
+		}
+	}
+	else
+	{
+		if (m_Cursor.loadFromSystem(sf::Cursor::Arrow) && m_MouseTextFlag)
+		{
+			m_MouseTextFlag = false;
+			m_Window->setMouseCursor(m_Cursor);
+		}
+	}
+
+	if (std::any_of(m_RadioButtons.begin(), m_RadioButtons.end(), [&](const auto& x) { return x->Contains(m_MousePos); }))
+	{
+		if (m_Cursor.loadFromSystem(sf::Cursor::Hand) && !m_MouseHandFlag)
+		{
+			m_Window->setMouseCursor(m_Cursor);
+			m_MouseHandFlag = true;
+		}
+	}
+	else
+	{
+		if (m_Cursor.loadFromSystem(sf::Cursor::Arrow) && m_MouseHandFlag)
+		{
+			m_MouseHandFlag = false;
+			m_Window->setMouseCursor(m_Cursor);
+		}
+	}
+}
+
 void MatrixCalculator::Update()
 {
+	UpdateMouseLook();
 	UpdateMousePosition();
 	UpdateSFMLEvents();
 	UpdateGui();
+}
+
+void MatrixCalculator::RenderGui()
+{
+	for (auto e : m_Matrix)
+		e->Render(m_Window);
+
+	//m_RadioButton->Render(m_Window);
+
+	for (auto e : m_RadioButtons)
+		e->Render(m_Window);
 }
 
 void MatrixCalculator::Render()
@@ -157,8 +244,7 @@ void MatrixCalculator::Render()
 	m_Window->draw(m_Background);
 	m_Window->draw(m_TitleText);
 
-	for (auto e : m_Matrix)
-		e->Render(m_Window);
+	RenderGui();
 
     m_Window->display();
 }
@@ -167,6 +253,7 @@ void MatrixCalculator::Run()
 {
     while (m_Window->isOpen())
     {
+
         Update();
         Render();
     }

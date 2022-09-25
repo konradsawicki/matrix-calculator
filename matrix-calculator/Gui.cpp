@@ -198,7 +198,8 @@ gui::TextBox::TextBox(const int& CharSize, sf::Color Color, const sf::Vector2f& 
 	: m_IsSelected(false)
 {
 	m_TextboxBackground.setSize(BackgroundSize);
-	m_TextboxBackground.setFillColor(sf::Color(152, 152, 156));
+	//m_TextboxBackground.setFillColor(sf::Color(152, 152, 156));
+	m_TextboxBackground.setFillColor(sf::Color(211, 211, 211));
 	m_TextboxBackground.setPosition(Pos);
 
 	m_Font.loadFromFile("Fonts/font1.ttf");
@@ -273,7 +274,6 @@ sf::Vector2f gui::TextBox::GetPosition()
 	return m_TextboxBackground.getPosition();
 }
 
-
 std::string gui::TextBox::GetText()
 {
 	return m_Text.str();
@@ -331,4 +331,86 @@ void gui::TextBox::Render(sf::RenderWindow* Window)
 {
 	Window->draw(m_TextboxBackground);
 	Window->draw(m_Textbox);
+}
+
+/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+gui::RadioButton::RadioButton(const float& Radius, const sf::Vector2f& Pos, const std::string& Text)
+	: m_ActiveFlag(false)
+{
+	float InnerRadius = Radius - 3.f;
+	m_OuterCircle.setRadius(Radius);
+	m_InnerCircle.setRadius(InnerRadius);
+
+	m_OuterCircle.setOrigin({ Radius, Radius });
+	m_OuterCircle.setPosition(Pos);
+	m_InnerCircle.setOrigin({ InnerRadius, InnerRadius });
+	m_InnerCircle.setPosition(Pos);
+
+	m_OuterCircle.setFillColor(sf::Color(0, 0, 0, 0));
+	m_OuterCircle.setOutlineColor(sf::Color(152, 152, 156));
+	m_OuterCircle.setOutlineThickness(2);
+
+	m_InnerCircle.setFillColor(sf::Color(0, 0, 0, 0));
+
+	m_FontLight.loadFromFile("Fonts/font1.ttf");
+	m_FontBold.loadFromFile("Fonts/font1_bold.ttf");
+	m_Text.setFont(m_FontLight);
+	m_Text.setCharacterSize(Radius + 5);
+	m_Text.setFillColor(sf::Color::White);
+	m_Text.setString(Text);
+	m_Text.setPosition(Pos + sf::Vector2f(Radius + 5.f, -Radius));
+
+	m_ButtonBackground.setFillColor(sf::Color(0, 0, 0, 0));
+	m_ButtonBackground.setSize({ 2 * Radius + 5.f + m_Text.getGlobalBounds().width, 2 * Radius });
+	m_ButtonBackground.setPosition({ Pos.x - Radius, Pos.y - Radius });
+}
+
+bool gui::RadioButton::Contains(const sf::Vector2f& Something)
+{
+	return m_ButtonBackground.getGlobalBounds().contains(Something);
+}
+
+void gui::RadioButton::SetActive()
+{
+	m_ActiveFlag = true;
+	m_OuterCircle.setOutlineColor(sf::Color::White);
+	m_OuterCircle.setOutlineThickness(3);
+
+	m_InnerCircle.setFillColor(sf::Color::White);
+	m_Text.setFont(m_FontBold);
+}
+
+void gui::RadioButton::SetInactive()
+{
+	m_ActiveFlag = false;
+	m_OuterCircle.setOutlineColor(sf::Color::White);
+	m_OuterCircle.setOutlineThickness(1);
+
+	m_InnerCircle.setFillColor(sf::Color(0, 0, 0, 0));
+	m_Text.setFont(m_FontLight);
+}
+
+bool gui::RadioButton::IsActive()
+{
+	return m_ActiveFlag;
+}
+
+sf::Vector2f gui::RadioButton::GetPosition()
+{
+	return m_OuterCircle.getPosition();
+}
+
+void gui::RadioButton::Update()
+{
+
+}
+
+void gui::RadioButton::Render(sf::RenderWindow* Window)
+{
+	Window->draw(m_ButtonBackground);
+	Window->draw(m_OuterCircle);
+	Window->draw(m_InnerCircle);
+	Window->draw(m_Text);
 }
