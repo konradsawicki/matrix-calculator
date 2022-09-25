@@ -78,10 +78,13 @@ void MatrixCalculator::UpdateSFMLEvents()
 			{
 				for (auto e : m_Matrix)
 				{
-					if (e->Contains(m_MousePos))
+					if (e->Contains(m_MousePos) && e != m_ActiveTextbox)
 					{
 						if (m_ActiveTextbox)
+						{
 							m_ActiveTextbox->Select(false);
+							m_ActiveTextbox->Update();
+						}
 						m_ActiveTextbox = e;
 						m_ActiveTextbox->Select(true);
 					}
@@ -97,10 +100,33 @@ void MatrixCalculator::UpdateSFMLEvents()
 				}
 			}
 			break;
-
 		case sf::Event::TextEntered:
 			if (m_ActiveTextbox)
 				m_ActiveTextbox->Type(m_Event);
+			break;
+
+		case sf::Event::KeyReleased:
+			if (m_Event.key.code == sf::Keyboard::Tab || m_Event.key.code == sf::Keyboard::Enter)
+			{
+				if (m_ActiveTextbox)
+				{
+					auto it = std::find(m_Matrix.begin(), m_Matrix.end(), m_ActiveTextbox);
+					if (it + 1 != m_Matrix.end())
+					{
+						m_ActiveTextbox->Select(false);
+						m_ActiveTextbox->Update();
+						m_ActiveTextbox = *(it + 1);
+						m_ActiveTextbox->Select(true);
+					}
+					else
+					{
+						m_ActiveTextbox->Select(false);
+						m_ActiveTextbox->Update();
+						m_ActiveTextbox = *m_Matrix.begin();
+						m_ActiveTextbox->Select(true);
+					}
+				}
+			}
 			break;
 		}
 	}
