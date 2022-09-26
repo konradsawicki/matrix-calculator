@@ -48,11 +48,11 @@ void MatrixCalculator::InitMatrix(const std::string& MatrixName, const sf::Vecto
 	}
 
 	float m_DimensionX_TextboxesPos = Position.x - 30.f;
-	float m_DimensionY_TextboxesPos = Position.y - 40.f;
-	m_DimensionX_Textboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos - 40, m_DimensionY_TextboxesPos }, { 60, 25 });
-	m_DimensionX_Textboxes[MatrixName]->SetText(j_max);
-	m_DimensionY_Textboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos + 40, m_DimensionY_TextboxesPos }, { 60, 25 });
-	m_DimensionY_Textboxes[MatrixName]->SetText(i_max);
+	float m_DimensionY_TextboxesPos = Position.y - 60.f;
+	m_RowTextboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos - 40, m_DimensionY_TextboxesPos }, { 60, 25 });
+	m_RowTextboxes[MatrixName]->SetText(j_max);
+	m_ColumnTextboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos + 40, m_DimensionY_TextboxesPos }, { 60, 25 });
+	m_ColumnTextboxes[MatrixName]->SetText(i_max);
 	m_TextFont.loadFromFile("Fonts/font1_bold.ttf");
 	m_TextsCharX[MatrixName].setFont(m_TextFont);
 	m_TextsCharX[MatrixName].setCharacterSize(15);
@@ -72,13 +72,13 @@ void MatrixCalculator::InitMatrix(const std::string& MatrixName, const sf::Vecto
 
 void MatrixCalculator::InitGui()
 {
-
 	sf::Vector2f TempPos;
-	m_MatrixPositions["Matrix A"] = sf::Vector2f(m_DimensionXMatrixTextbox, m_DimensionYMatrixTextbox);
+	m_MatrixPositions["Matrix A"] = sf::Vector2f(265.f, 380.f);
 	InitMatrix("Matrix A", m_MatrixPositions["Matrix A"]);
 	
-	m_MatrixPositions["Matrix B"] = sf::Vector2f(750.f, 350.f);
+	m_MatrixPositions["Matrix B"] = sf::Vector2f(760.f, 380.f);
 	InitMatrix("Matrix B", m_MatrixPositions["Matrix B"]);
+
 
 	for (int k = 0, i = 0; i < 2; i++)
 	{
@@ -86,27 +86,34 @@ void MatrixCalculator::InitGui()
 		{
 			if (m_RadioButtons.empty())
 			{
-				m_RadioButtons.push_back(new gui::RadioButton(10, { m_Window->getSize().x / 2.f - 180.f, 130}, m_Operations[k]));
+				m_RadioButtons.push_back(new gui::RadioButton(10, { m_Window->getSize().x / 2.f - 180.f, 130}, m_OperationsNames[k]));
 				TempPos = m_RadioButtons.back()->GetPosition();
 			}
 			else
-				m_RadioButtons.push_back(new gui::RadioButton(10, { TempPos.x + j * 150, TempPos.y + i * 50 }, m_Operations[k]));
+				m_RadioButtons.push_back(new gui::RadioButton(10, { TempPos.x + j * 150, TempPos.y + i * 50 }, m_OperationsNames[k]));
 			k++;
 		}
 	}
+
+	m_CalculateButton = new gui::Button(m_Window->getSize().x - 400, m_Window->getSize().y - 690, 150, 50, "Calculate",
+		sf::Color(100, 100, 100, 100), sf::Color(120, 120, 120, 255), sf::Color(20, 20, 20, 200), 25);
 }
 
 MatrixCalculator::MatrixCalculator()
 	: m_ActiveFlag(false), m_ActiveTextbox(nullptr), m_MouseTextMatrixAFlag(false), m_MouseTextMatrixBFlag(false), m_MouseTextDimensionsFlag(false),
-	m_MouseHandFlag(false), m_Operations({ "Add", "Substract", "Multiply", "Transpose", "Determinant", "Inverse" }), m_DimensionXMatrixTextbox(250.f),
-	m_DimensionYMatrixTextbox(350.f)
+		m_MouseHandFlag(false), m_OperationsNames({ "Add", "Substract", "Multiply", "Transpose", "Determinant", "Inverse" })
 {
     std::cout << "Starting Matrix Calculator!\n";
     InitWindow();
 	InitBackground();
 	InitGui();
-	//std::thread Thread(&MatrixCalculator::UpdateMouseText, std::ref(*this));
-	//Thread.detach();
+
+	m_Operations.emplace("Add", new op::Addition());
+	m_Operations.emplace("Substract", new op::Substraction());
+	m_Operations.emplace("Multiply", new op::Multiplication());
+	m_Operations.emplace("Transpose", new op::Transposition());
+	m_Operations.emplace("Determinant", new op::Determinant());
+	m_Operations.emplace("Inverse", new op::Inversion());
 }
 
 MatrixCalculator::~MatrixCalculator()
@@ -118,12 +125,12 @@ MatrixCalculator::~MatrixCalculator()
 			delete e;
 	}
 
-	for (auto& kv : m_DimensionX_Textboxes)
+	for (auto& kv : m_RowTextboxes)
 	{
 		delete kv.second;
 	}
 
-	for (auto& kv : m_DimensionY_Textboxes)
+	for (auto& kv : m_ColumnTextboxes)
 	{
 		delete kv.second;
 	}
@@ -132,6 +139,8 @@ MatrixCalculator::~MatrixCalculator()
 	{
 		delete e;
 	}
+
+	delete m_CalculateButton;
 
     std::cout << "Ending Matrix Calculator!\n";
 }
@@ -149,67 +158,14 @@ void MatrixCalculator::UpdateSFMLEvents()
 		case sf::Event::MouseButtonReleased:
 			if (m_Event.mouseButton.button == sf::Mouse::Left)
 			{		
-				gui::TextBox* Temp;
-				auto it = std::find_if(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
-						{
-							return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
-								{
-									if (x->Contains(m_MousePos))
-									{
-										Temp = x;
-										return true;
-									}
-									else
-										return false;
-								});
-						});
-				if (it != m_Matrices.end())
-				{
-					UpdateTextbox(Temp);
-				}
-				else if (std::find_if(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
-					{
-						if (kv.second->Contains(m_MousePos))
-						{
-							Temp = kv.second;
-							return true;
-						}
-						else
-							return false;
-					}) != m_DimensionX_Textboxes.end())
-				{
-					UpdateTextbox(Temp);
-				}
-
-				else if (std::find_if(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
-					{
-						if (kv.second->Contains(m_MousePos))
-						{
-							Temp = kv.second;
-							return true;
-						}
-						else
-							return false;
-					}) != m_DimensionY_Textboxes.end())
-				{
-					UpdateTextbox(Temp);
-				}
-				else
-				{
-					if (m_ActiveTextbox)
-					{
-						m_ActiveTextbox->Select(false);
-						m_ActiveTextbox->Update();
-						m_TempDimensionTextbox = m_ActiveTextbox;
-						m_ActiveTextbox = nullptr;
-					}
-				}
-
+				UpdateTextboxesAfterMouseRelease();
 
 				auto it2 = std::find_if(m_RadioButtons.begin(), m_RadioButtons.end(), [&](const auto& x) { return x->Contains(m_MousePos); });
 				if (it2 != m_RadioButtons.end())
 					UpdateRadioButton(*it2);
 
+				if (m_CalculateButton->Contains(m_MousePos) && m_ActiveRadioButton)
+					m_Operations[m_ActiveRadioButton->GetText()]->Calculate(m_Matrices, m_RowTextboxes, m_ColumnTextboxes);
 			}
 			break;
 		case sf::Event::TextEntered:
@@ -220,81 +176,7 @@ void MatrixCalculator::UpdateSFMLEvents()
 		case sf::Event::KeyReleased:
 			if (m_Event.key.code == sf::Keyboard::Tab || m_Event.key.code == sf::Keyboard::Enter)
 			{
-				if (m_ActiveTextbox)
-				{
-					std::vector<gui::TextBox*>::const_iterator TempTextboxIter;
-					std::vector<gui::TextBox*>::const_iterator TempKVsecondEnd;
-					std::vector<gui::TextBox*>::const_iterator TempKVsecondBegin;
-					std::string TempMatrixName;
-					auto it = std::find_if(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
-						{
-							return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
-								{
-									if (x == m_ActiveTextbox)
-									{
-										TempKVsecondEnd = kv.second.cend();
-										TempKVsecondBegin = kv.second.cbegin();
-										TempTextboxIter = std::find(kv.second.begin(), kv.second.end(), m_ActiveTextbox);
-										return true;
-									}
-									else
-										return false;
-								});
-						});
-					if (it != m_Matrices.end())
-					{
-						if (TempTextboxIter + 1 != TempKVsecondEnd)
-						{
-							m_ActiveTextbox->Select(false);
-							m_ActiveTextbox->Update();
-							m_ActiveTextbox = *(TempTextboxIter + 1);
-							m_ActiveTextbox->Select(true);
-						}
-						else
-						{
-							m_ActiveTextbox->Select(false);
-							m_ActiveTextbox->Update();
-							m_ActiveTextbox = *TempKVsecondBegin;
-							m_ActiveTextbox->Select(true);
-						}
-					}
-					else if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
-						{
-							if (m_ActiveTextbox == kv.second)
-							{
-								TempMatrixName = kv.first;
-								return true;
-							}
-							else 
-								return false;
-						})
-					)
-					{
-						m_ActiveTextbox->Select(false);
-						m_ActiveTextbox->Update();
-						UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
-						m_ActiveTextbox = m_DimensionY_Textboxes[TempMatrixName];
-						m_ActiveTextbox->Select(true);
-					}
-					else if (std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
-						{
-							if (m_ActiveTextbox == kv.second)
-							{
-								TempMatrixName = kv.first;
-								return true;
-							}
-							else
-								return false;
-						})
-					)
-					{
-						m_ActiveTextbox->Select(false);
-						m_ActiveTextbox->Update();
-						UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
-						m_ActiveTextbox = m_Matrices[TempMatrixName][0];
-						m_ActiveTextbox->Select(true);
-					}
-				}
+				UpdateTextboxesAfterKeyRelease();
 			}
 			break;
 		}
@@ -308,7 +190,7 @@ void MatrixCalculator::UpdateGui()
 		m_ActiveTextbox->Update();
 	}
 	std::string TempMatrixName;
-	if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
+	if (std::any_of(m_RowTextboxes.begin(), m_RowTextboxes.end(), [&](const auto& kv)
 		{
 			if (m_TempDimensionTextbox == kv.second)
 			{
@@ -320,9 +202,9 @@ void MatrixCalculator::UpdateGui()
 		})
 	)
 	{
-		UpdateDimensionTextbox(m_DimensionX_Textboxes[TempMatrixName], TempMatrixName);
+		UpdateDimensionTextbox(m_RowTextboxes[TempMatrixName], TempMatrixName);
 	}	
-	else if (std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
+	else if (std::any_of(m_ColumnTextboxes.begin(), m_ColumnTextboxes.end(), [&](const auto& kv)
 		{
 			if (m_TempDimensionTextbox == kv.second)
 			{
@@ -334,9 +216,12 @@ void MatrixCalculator::UpdateGui()
 		})
 	)
 	{
-		UpdateDimensionTextbox(m_DimensionY_Textboxes[TempMatrixName], TempMatrixName);
+		UpdateDimensionTextbox(m_ColumnTextboxes[TempMatrixName], TempMatrixName);
 	}
-		
+
+
+	m_CalculateButton->Update(m_MousePos);
+
 }
 
 void MatrixCalculator::UpdateMousePosition()
@@ -376,7 +261,7 @@ void MatrixCalculator::UpdateMouseLook()
 		}
 	}
 
-	if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
+	if (std::any_of(m_RowTextboxes.begin(), m_RowTextboxes.end(), [&](const auto& kv)
 		{
 			if (kv.second->Contains(m_MousePos))
 			{
@@ -387,7 +272,7 @@ void MatrixCalculator::UpdateMouseLook()
 
 		}) || 
 
-		std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
+		std::any_of(m_ColumnTextboxes.begin(), m_ColumnTextboxes.end(), [&](const auto& kv)
 		{
 			if (kv.second->Contains(m_MousePos))
 			{
@@ -461,20 +346,20 @@ void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox, co
 {
 	std::cout << "Halo\n";
 
-	std::string TextX = m_DimensionX_Textboxes[MatrixName]->GetText();
-	std::string TextY = m_DimensionY_Textboxes[MatrixName]->GetText();
+	std::string TextX = m_RowTextboxes[MatrixName]->GetText();
+	std::string TextY = m_ColumnTextboxes[MatrixName]->GetText();
 	if (TextX == "")
 	{
 		TextX = "1";
-		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
-			m_DimensionX_Textboxes[MatrixName]->SetText(1);
+		if (DimensionTextbox == m_RowTextboxes[MatrixName])
+			m_RowTextboxes[MatrixName]->SetText(1);
 	}
 
 	if (TextY == "")
 	{
 		TextY = "1";
-		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
-			m_DimensionY_Textboxes[MatrixName]->SetText(1);
+		if (DimensionTextbox == m_ColumnTextboxes[MatrixName])
+			m_ColumnTextboxes[MatrixName]->SetText(1);
 	}
 
 	int rows = std::stoi(TextX);
@@ -483,33 +368,34 @@ void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox, co
 	if (rows <= 0)
 	{
 		rows = 1;
-		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
-			m_DimensionX_Textboxes[MatrixName]->SetText(1);
+		if (DimensionTextbox == m_RowTextboxes[MatrixName])
+			m_RowTextboxes[MatrixName]->SetText(1);
 	}
 	else if (rows > 6)
 	{
 		rows = 6;
-		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
-			m_DimensionX_Textboxes[MatrixName]->SetText(6);
+		if (DimensionTextbox == m_RowTextboxes[MatrixName])
+			m_RowTextboxes[MatrixName]->SetText(6);
 	}
 
 	if (columns <= 0)
 	{
 		columns = 1;
-		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
-			m_DimensionY_Textboxes[MatrixName]->SetText(1);
+		if (DimensionTextbox == m_ColumnTextboxes[MatrixName])
+			m_ColumnTextboxes[MatrixName]->SetText(1);
 	}
 	else if (columns > 6)
 	{
 		columns = 6;
-		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
-			m_DimensionY_Textboxes[MatrixName]->SetText(6);
+		if (DimensionTextbox == m_ColumnTextboxes[MatrixName])
+			m_ColumnTextboxes[MatrixName]->SetText(6);
 	}
 
 	if (m_Matrices[MatrixName].size() / rows != columns)
 	{
 		std::cout << "Halo1\n";
-		m_ActiveTextbox = nullptr;
+		if (std::any_of(m_Matrices[MatrixName].begin(), m_Matrices[MatrixName].end(), [&](const auto& x) { return x == m_ActiveTextbox; }))
+			m_ActiveTextbox = nullptr;
 		for (auto e : m_Matrices[MatrixName])
 			delete e;
 		m_Matrices[MatrixName].clear();
@@ -532,25 +418,166 @@ void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox, co
 
 		UpdateLines(MatrixName, rows, columns);
 
-		auto it = std::find_if(m_Matrices[MatrixName].begin(), m_Matrices[MatrixName].end(), [&](const auto& x) { return x->Contains(m_MousePos); });
-		if (it != m_Matrices[MatrixName].end())
-		{
-			m_ActiveTextbox = *it;
-			m_ActiveTextbox->Select(true);
-		}
-		else if (m_DimensionX_Textboxes[MatrixName]->Contains(m_MousePos))
-		{
-			m_ActiveTextbox = m_DimensionX_Textboxes[MatrixName];
-			m_ActiveTextbox->Select(true);
-		}
-		else if (m_DimensionY_Textboxes[MatrixName]->Contains(m_MousePos))
-		{
-			m_ActiveTextbox = m_DimensionY_Textboxes[MatrixName];
-			m_ActiveTextbox->Select(true);
-		}
+
+
+		// to chyba niepotrzebne - nie pamietam, po co to dodalem xd
+		//auto it = std::find_if(m_Matrices[MatrixName].begin(), m_Matrices[MatrixName].end(), [&](const auto& x) { return x->Contains(m_MousePos); });
+		//if (it != m_Matrices[MatrixName].end())
+		//{
+		//	m_ActiveTextbox = *it;
+		//	m_ActiveTextbox->Select(true);
+		//}
+		//else if (m_DimensionX_Textboxes[MatrixName]->Contains(m_MousePos))
+		//{
+		//	m_ActiveTextbox = m_DimensionX_Textboxes[MatrixName];
+		//	m_ActiveTextbox->Select(true);
+		//}
+		//else if (m_DimensionY_Textboxes[MatrixName]->Contains(m_MousePos))
+		//{
+		//	m_ActiveTextbox = m_DimensionY_Textboxes[MatrixName];
+		//	m_ActiveTextbox->Select(true);
+		//}
 
 	}
 	m_TempDimensionTextbox = nullptr;
+}
+
+void MatrixCalculator::UpdateTextboxesAfterMouseRelease()
+{
+	gui::TextBox* Temp;
+	auto it = std::find_if(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
+		{
+			return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
+				{
+					if (x->Contains(m_MousePos))
+					{
+						Temp = x;
+						return true;
+					}
+					else
+						return false;
+				});
+		});
+	if (it != m_Matrices.end())
+	{
+		UpdateTextbox(Temp);
+	}
+	else if (std::find_if(m_RowTextboxes.begin(), m_RowTextboxes.end(), [&](const auto& kv)
+		{
+			if (kv.second->Contains(m_MousePos))
+			{
+				Temp = kv.second;
+				return true;
+			}
+			else
+				return false;
+		}) != m_RowTextboxes.end())
+	{
+		UpdateTextbox(Temp);
+	}
+
+	else if (std::find_if(m_ColumnTextboxes.begin(), m_ColumnTextboxes.end(), [&](const auto& kv)
+		{
+			if (kv.second->Contains(m_MousePos))
+			{
+				Temp = kv.second;
+				return true;
+			}
+			else
+				return false;
+		}) != m_ColumnTextboxes.end())
+	{
+		UpdateTextbox(Temp);
+	}
+	else
+	{
+		if (m_ActiveTextbox)
+		{
+			m_ActiveTextbox->Select(false);
+			m_ActiveTextbox->Update();
+			m_TempDimensionTextbox = m_ActiveTextbox;
+			m_ActiveTextbox = nullptr;
+		}
+	}
+}
+
+void MatrixCalculator::UpdateTextboxesAfterKeyRelease()
+{
+	if (m_ActiveTextbox)
+	{
+		std::vector<gui::TextBox*>::const_iterator TempTextboxIter;
+		std::vector<gui::TextBox*>::const_iterator TempKVsecondEnd;
+		std::vector<gui::TextBox*>::const_iterator TempKVsecondBegin;
+		std::string TempMatrixName;
+		auto it = std::find_if(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
+			{
+				return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
+					{
+						if (x == m_ActiveTextbox)
+						{
+							TempKVsecondEnd = kv.second.cend();
+							TempKVsecondBegin = kv.second.cbegin();
+							TempTextboxIter = std::find(kv.second.begin(), kv.second.end(), m_ActiveTextbox);
+							return true;
+						}
+						else
+							return false;
+					});
+			});
+		if (it != m_Matrices.end())
+		{
+			if (TempTextboxIter + 1 != TempKVsecondEnd)
+			{
+				m_ActiveTextbox->Select(false);
+				m_ActiveTextbox->Update();
+				m_ActiveTextbox = *(TempTextboxIter + 1);
+				m_ActiveTextbox->Select(true);
+			}
+			else
+			{
+				m_ActiveTextbox->Select(false);
+				m_ActiveTextbox->Update();
+				m_ActiveTextbox = *TempKVsecondBegin;
+				m_ActiveTextbox->Select(true);
+			}
+		}
+		else if (std::any_of(m_RowTextboxes.begin(), m_RowTextboxes.end(), [&](const auto& kv)
+			{
+				if (m_ActiveTextbox == kv.second)
+				{
+					TempMatrixName = kv.first;
+					return true;
+				}
+				else
+					return false;
+			})
+			)
+		{
+			m_ActiveTextbox->Select(false);
+			m_ActiveTextbox->Update();
+			UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
+			m_ActiveTextbox = m_ColumnTextboxes[TempMatrixName];
+			m_ActiveTextbox->Select(true);
+		}
+		else if (std::any_of(m_ColumnTextboxes.begin(), m_ColumnTextboxes.end(), [&](const auto& kv)
+			{
+				if (m_ActiveTextbox == kv.second)
+				{
+					TempMatrixName = kv.first;
+					return true;
+				}
+				else
+					return false;
+			})
+			)
+		{
+			m_ActiveTextbox->Select(false);
+			m_ActiveTextbox->Update();
+			UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
+			m_ActiveTextbox = m_Matrices[TempMatrixName][0];
+			m_ActiveTextbox->Select(true);
+		}
+	}
 }
 
 void MatrixCalculator::UpdateRadioButton(gui::RadioButton* RadioButton)
@@ -595,10 +622,10 @@ void MatrixCalculator::RenderGui()
 		for (auto& e : kv.second)
 			e->Render(m_Window);
 
-	for (auto& kv : m_DimensionX_Textboxes)
+	for (auto& kv : m_RowTextboxes)
 		kv.second->Render(m_Window);
 
-	for (auto& kv : m_DimensionY_Textboxes)
+	for (auto& kv : m_ColumnTextboxes)
 		kv.second->Render(m_Window);
 
 	for (auto& kv : m_TextsCharX)
@@ -615,6 +642,8 @@ void MatrixCalculator::RenderGui()
 		
 	for (auto e : m_RadioButtons)
 		e->Render(m_Window);
+
+	m_CalculateButton->Render(m_Window);
 }
 
 void MatrixCalculator::Render()

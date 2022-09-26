@@ -25,6 +25,8 @@ gui::Button::Button(float x, float y, float width, float height, std::string Tex
 	m_ActiveColor = ActiveColor;
 
 	m_Button.setFillColor(m_IdleColor);
+	m_Button.setOutlineColor(sf::Color::White);
+	m_Button.setOutlineThickness(2);
 }
 
 gui::Button::~Button()
@@ -71,17 +73,19 @@ void gui::Button::Update(const sf::Vector2f& MousePos)
 		}
 	}
 
-
 	switch (m_ButtonState)
 	{
 	case BUTTON_STATES::BTN_IDLE:
 		m_Button.setFillColor(m_IdleColor);
+		m_Button.setOutlineColor(sf::Color::White);
 		break;
 	case BUTTON_STATES::BTN_HOVER:
 		m_Button.setFillColor(m_HoverColor);
+		m_Button.setOutlineColor(sf::Color::White);
 		break;
 	case BUTTON_STATES::BTN_ACTIVE:
 		m_Button.setFillColor(m_ActiveColor);
+		m_Button.setOutlineColor(sf::Color::Yellow);
 		break;
 	default:
 		m_Button.setFillColor(sf::Color::Red);
@@ -237,7 +241,6 @@ void gui::TextBox::DeleteLastChar()
 	m_Textbox.setString(m_Text.str());
 }
 
-
 void gui::TextBox::SetLimit(const bool& TrueOrFalse)
 {
 	m_HasLimit = TrueOrFalse;
@@ -248,7 +251,6 @@ void gui::TextBox::SetLimit(const bool& TrueOrFalse, const int& Limit)
 	m_HasLimit = TrueOrFalse;
 	m_Limit = Limit;
 }
-
 
 bool gui::TextBox::IsSelected()
 {
@@ -274,9 +276,14 @@ sf::Vector2f gui::TextBox::GetPosition()
 	return m_TextboxBackground.getPosition();
 }
 
-std::string gui::TextBox::GetText()
+std::string gui::TextBox::GetText() const
 {
 	return m_Text.str();
+} 
+
+double gui::TextBox::GetValue() const
+{
+	return stod(m_Text.str());
 }
 
 void gui::TextBox::Type(sf::Event Event)
@@ -301,7 +308,25 @@ void gui::TextBox::Type(sf::Event Event)
 	}
 }
 
-void gui::TextBox::SetText(int Text)
+void gui::TextBox::CheckText()
+{
+	std::string temp = m_Text.str();
+	if (temp.back() == '.' || temp.back() == '-')
+		m_WrongValueFlag = true;
+	else if (std::count(temp.begin(), temp.end(), '-') > 1)
+		m_WrongValueFlag = true;
+	else if (std::count(temp.begin(), temp.end(), '.') > 1)
+		m_WrongValueFlag = true;
+	else
+		m_WrongValueFlag = false;
+}
+
+bool gui::TextBox::GetWrongValueFlag() const
+{
+	return m_WrongValueFlag;
+}
+
+void gui::TextBox::SetText(double Text)
 {
 	m_Text.str(std::string());
 	m_Text << Text;
@@ -322,7 +347,7 @@ void gui::TextBox::UpdateTextPosition()
 
 void gui::TextBox::UpdateOutline()
 {
-	if (m_IsSelected)
+	if (m_IsSelected && !m_WrongValueFlag)
 	{
 		m_TextboxBackground.setOutlineColor(sf::Color::Yellow);
 		m_TextboxBackground.setOutlineThickness(2);
@@ -330,12 +355,18 @@ void gui::TextBox::UpdateOutline()
 	else
 		m_TextboxBackground.setOutlineThickness(0);
 
+	if (m_WrongValueFlag)
+	{
+		m_TextboxBackground.setOutlineColor(sf::Color::Red);
+		m_TextboxBackground.setOutlineThickness(2);
+	}
 }
 
 void gui::TextBox::Update()
 {
 	UpdateTextPosition();
 	UpdateOutline();
+	CheckText();
 }
 
 void gui::TextBox::Render(sf::RenderWindow* Window)
@@ -408,6 +439,11 @@ void gui::RadioButton::SetInactive()
 bool gui::RadioButton::IsActive()
 {
 	return m_ActiveFlag;
+}
+
+std::string gui::RadioButton::GetText() const
+{
+	return m_Text.getString();
 }
 
 sf::Vector2f gui::RadioButton::GetPosition()

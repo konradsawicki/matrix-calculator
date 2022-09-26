@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include <stack>
 #include <list>
 #include <set>
 #include <algorithm>
@@ -87,6 +86,8 @@ namespace gui
 		bool m_HasLimit = false;
 		int m_Limit;
 
+		bool m_WrongValueFlag = false;
+
 		sf::RectangleShape m_TextboxBackground;
 
 		void InputLogic(const int&);
@@ -107,11 +108,15 @@ namespace gui
 		void Select(const bool&);
 		bool Contains(const sf::Vector2f&);
 		
+		bool GetWrongValueFlag() const;
 		sf::Vector2f GetPosition();
-		std::string GetText();
-		void SetText(int);
+		std::string GetText() const;
+		double GetValue() const;
+
+		void SetText(double);
 
 		void Type(sf::Event);
+		void CheckText();
 
 		void Update();
 		void Render(sf::RenderWindow*);
@@ -138,6 +143,8 @@ namespace gui
 
 		void SetActive();
 		void SetInactive();
+
+		std::string GetText() const;
 
 		bool IsActive();
 		sf::Vector2f GetPosition();
