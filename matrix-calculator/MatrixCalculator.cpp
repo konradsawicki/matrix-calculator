@@ -3,7 +3,7 @@
 
 void MatrixCalculator::InitWindow()
 {
-    m_Window = new sf::RenderWindow(sf::VideoMode(1280+100, 720+100), "Matrix Calculator", sf::Style::Close);
+    m_Window = new sf::RenderWindow(sf::VideoMode(1280+300, 720+100), "Matrix Calculator", sf::Style::Close);
     m_Window->setFramerateLimit(120);
 }
 
@@ -24,7 +24,7 @@ void MatrixCalculator::InitBackground()
 	);
 }
 
-void MatrixCalculator::InitGui()
+void MatrixCalculator::InitMatrix(const std::string& MatrixName, const sf::Vector2f& Position)
 {
 	int i_max = 3;
 	int j_max = 3;
@@ -37,40 +37,48 @@ void MatrixCalculator::InitGui()
 	{
 		for (int j = 0; j < j_max; j++)
 		{
-			if (m_Matrices["MATRIX_A"].empty())
+			if (m_Matrices[MatrixName].empty())
 			{
-				m_Matrices["MATRIX_A"].push_back(new gui::TextBox(15, sf::Color::Black, { m_DimensionXMatrixTextbox - b, m_DimensionYMatrixTextbox }, { 60, 25 }));
-				TempPos = m_Matrices["MATRIX_A"].back()->GetPosition();
+				m_Matrices[MatrixName].push_back(new gui::TextBox(15, sf::Color::Black, { Position.x - b, Position.y }, { 60, 25 }));
+				TempPos = m_Matrices[MatrixName].back()->GetPosition();
 			}
 			else
-				m_Matrices["MATRIX_A"].push_back(new gui::TextBox(15, sf::Color::Black, { TempPos.x + j * 70, TempPos.y + i * 35.f }, { 60, 25 }));
-			//m_Matrix.back()->SetLimit(true, 6);
+				m_Matrices[MatrixName].push_back(new gui::TextBox(15, sf::Color::Black, { TempPos.x + j * 70, TempPos.y + i * 35.f }, { 60, 25 }));
 		}
 	}
 
-	float m_DimensionX_TextboxesPos = m_DimensionXMatrixTextbox - 30.f;
-	float m_DimensionY_TextboxesPos = m_DimensionYMatrixTextbox - 40.f;
-	m_DimensionX_Textboxes["MATRIX_A"] = new gui::TextBox(15, sf::Color::Black, {m_DimensionX_TextboxesPos - 40, m_DimensionY_TextboxesPos}, {60, 25});
-	m_DimensionX_Textboxes["MATRIX_A"]->SetText(j_max);
-	m_DimensionY_Textboxes["MATRIX_A"] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos + 40, m_DimensionY_TextboxesPos }, { 60, 25 });
-	m_DimensionY_Textboxes["MATRIX_A"]->SetText(i_max);
+	float m_DimensionX_TextboxesPos = Position.x - 30.f;
+	float m_DimensionY_TextboxesPos = Position.y - 40.f;
+	m_DimensionX_Textboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos - 40, m_DimensionY_TextboxesPos }, { 60, 25 });
+	m_DimensionX_Textboxes[MatrixName]->SetText(j_max);
+	m_DimensionY_Textboxes[MatrixName] = new gui::TextBox(15, sf::Color::Black, { m_DimensionX_TextboxesPos + 40, m_DimensionY_TextboxesPos }, { 60, 25 });
+	m_DimensionY_Textboxes[MatrixName]->SetText(i_max);
 	m_TextFont.loadFromFile("Fonts/font1_bold.ttf");
-	m_TextsCharX["MATRIX_A"].setFont(m_TextFont);
-	m_TextsCharX["MATRIX_A"].setCharacterSize(15);
-	m_TextsCharX["MATRIX_A"].setString("X");
-	m_TextsCharX["MATRIX_A"].setPosition({ m_DimensionX_TextboxesPos + 25, m_DimensionY_TextboxesPos + 3 });
+	m_TextsCharX[MatrixName].setFont(m_TextFont);
+	m_TextsCharX[MatrixName].setCharacterSize(15);
+	m_TextsCharX[MatrixName].setString("X");
+	m_TextsCharX[MatrixName].setPosition({ m_DimensionX_TextboxesPos + 25, m_DimensionY_TextboxesPos + 3 });
 
-	m_MatrixNames["MATRIX_A"].setFont(m_TextFont);
-	m_MatrixNames["MATRIX_A"].setCharacterSize(20);
-	m_MatrixNames["MATRIX_A"].setString("Matrix A");
-	m_MatrixNames["MATRIX_A"].setPosition({ m_DimensionX_TextboxesPos - 10, m_DimensionY_TextboxesPos - 30});
+	m_MatrixNames[MatrixName].setFont(m_TextFont);
+	m_MatrixNames[MatrixName].setCharacterSize(20);
+	m_MatrixNames[MatrixName].setString(MatrixName);
+	m_MatrixNames[MatrixName].setPosition({ m_DimensionX_TextboxesPos - 10, m_DimensionY_TextboxesPos - 30 });
 
-	m_Lines["MATRIX_A"].first = sf::RectangleShape(sf::Vector2f(3, a + 10));
-	m_Lines["MATRIX_A"].first.setPosition({ m_Matrices["MATRIX_A"].front()->GetPosition().x - 10, m_Matrices["MATRIX_A"].front()->GetPosition().y - 5});
-	m_Lines["MATRIX_A"].second = sf::RectangleShape(sf::Vector2f(3, a + 10));
-	m_Lines["MATRIX_A"].second.setPosition({ m_Matrices["MATRIX_A"].front()->GetPosition().x + 2*b + 7, m_Matrices["MATRIX_A"].front()->GetPosition().y - 5 });
+	m_Lines[MatrixName].first = sf::RectangleShape(sf::Vector2f(3, a + 10));
+	m_Lines[MatrixName].first.setPosition({ m_Matrices[MatrixName].front()->GetPosition().x - 10, m_Matrices[MatrixName].front()->GetPosition().y - 5 });
+	m_Lines[MatrixName].second = sf::RectangleShape(sf::Vector2f(3, a + 10));
+	m_Lines[MatrixName].second.setPosition({ m_Matrices[MatrixName].front()->GetPosition().x + 2 * b + 7, m_Matrices[MatrixName].front()->GetPosition().y - 5 });
+}
 
+void MatrixCalculator::InitGui()
+{
 
+	sf::Vector2f TempPos;
+	m_MatrixPositions["Matrix A"] = sf::Vector2f(m_DimensionXMatrixTextbox, m_DimensionYMatrixTextbox);
+	InitMatrix("Matrix A", m_MatrixPositions["Matrix A"]);
+	
+	m_MatrixPositions["Matrix B"] = sf::Vector2f(750.f, 350.f);
+	InitMatrix("Matrix B", m_MatrixPositions["Matrix B"]);
 
 	for (int k = 0, i = 0; i < 2; i++)
 	{
@@ -157,11 +165,8 @@ void MatrixCalculator::UpdateSFMLEvents()
 						});
 				if (it != m_Matrices.end())
 				{
-					std::cout << "1\n";
 					UpdateTextbox(Temp);
 				}
-					
-				/*else if (m_DimensionX_Textboxes["MATRIX_A"]->Contains(m_MousePos))*/
 				else if (std::find_if(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
 					{
 						if (kv.second->Contains(m_MousePos))
@@ -173,7 +178,6 @@ void MatrixCalculator::UpdateSFMLEvents()
 							return false;
 					}) != m_DimensionX_Textboxes.end())
 				{
-					std::cout << "2\n";
 					UpdateTextbox(Temp);
 				}
 
@@ -188,14 +192,12 @@ void MatrixCalculator::UpdateSFMLEvents()
 							return false;
 					}) != m_DimensionY_Textboxes.end())
 				{
-					std::cout << "3\n";
 					UpdateTextbox(Temp);
 				}
 				else
 				{
 					if (m_ActiveTextbox)
 					{
-						std::cout << "razdwa\n";
 						m_ActiveTextbox->Select(false);
 						m_ActiveTextbox->Update();
 						m_TempDimensionTextbox = m_ActiveTextbox;
@@ -220,38 +222,76 @@ void MatrixCalculator::UpdateSFMLEvents()
 			{
 				if (m_ActiveTextbox)
 				{
-					auto it = std::find(m_Matrices["MATRIX_A"].begin(), m_Matrices["MATRIX_A"].end(), m_ActiveTextbox);
-					if (it != m_Matrices["MATRIX_A"].end())
+					std::vector<gui::TextBox*>::const_iterator TempTextboxIter;
+					std::vector<gui::TextBox*>::const_iterator TempKVsecondEnd;
+					std::vector<gui::TextBox*>::const_iterator TempKVsecondBegin;
+					std::string TempMatrixName;
+					auto it = std::find_if(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
+						{
+							return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
+								{
+									if (x == m_ActiveTextbox)
+									{
+										TempKVsecondEnd = kv.second.cend();
+										TempKVsecondBegin = kv.second.cbegin();
+										TempTextboxIter = std::find(kv.second.begin(), kv.second.end(), m_ActiveTextbox);
+										return true;
+									}
+									else
+										return false;
+								});
+						});
+					if (it != m_Matrices.end())
 					{
-						if (it + 1 != m_Matrices["MATRIX_A"].end())
+						if (TempTextboxIter + 1 != TempKVsecondEnd)
 						{
 							m_ActiveTextbox->Select(false);
 							m_ActiveTextbox->Update();
-							m_ActiveTextbox = *(it + 1);
+							m_ActiveTextbox = *(TempTextboxIter + 1);
 							m_ActiveTextbox->Select(true);
 						}
 						else
 						{
 							m_ActiveTextbox->Select(false);
 							m_ActiveTextbox->Update();
-							m_ActiveTextbox = *m_Matrices["MATRIX_A"].begin();
+							m_ActiveTextbox = *TempKVsecondBegin;
 							m_ActiveTextbox->Select(true);
 						}
 					}
-					else if (m_ActiveTextbox == m_DimensionX_Textboxes["MATRIX_A"])
+					else if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
+						{
+							if (m_ActiveTextbox == kv.second)
+							{
+								TempMatrixName = kv.first;
+								return true;
+							}
+							else 
+								return false;
+						})
+					)
 					{
 						m_ActiveTextbox->Select(false);
 						m_ActiveTextbox->Update();
-						UpdateDimensionTextbox(m_ActiveTextbox);
-						m_ActiveTextbox = m_DimensionY_Textboxes["MATRIX_A"];
+						UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
+						m_ActiveTextbox = m_DimensionY_Textboxes[TempMatrixName];
 						m_ActiveTextbox->Select(true);
 					}
-					else if (m_ActiveTextbox == m_DimensionY_Textboxes["MATRIX_A"])
+					else if (std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
+						{
+							if (m_ActiveTextbox == kv.second)
+							{
+								TempMatrixName = kv.first;
+								return true;
+							}
+							else
+								return false;
+						})
+					)
 					{
 						m_ActiveTextbox->Select(false);
 						m_ActiveTextbox->Update();
-						UpdateDimensionTextbox(m_ActiveTextbox);
-						m_ActiveTextbox = m_Matrices["MATRIX_A"][0];
+						UpdateDimensionTextbox(m_ActiveTextbox, TempMatrixName);
+						m_ActiveTextbox = m_Matrices[TempMatrixName][0];
 						m_ActiveTextbox->Select(true);
 					}
 				}
@@ -267,12 +307,37 @@ void MatrixCalculator::UpdateGui()
 	{
 		m_ActiveTextbox->Update();
 	}
-	if (m_TempDimensionTextbox == m_DimensionX_Textboxes["MATRIX_A"])
-		UpdateDimensionTextbox(m_DimensionX_Textboxes["MATRIX_A"]);
-	else if (m_TempDimensionTextbox == m_DimensionY_Textboxes["MATRIX_A"])
-		UpdateDimensionTextbox(m_DimensionY_Textboxes["MATRIX_A"]);
+	std::string TempMatrixName;
+	if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
+		{
+			if (m_TempDimensionTextbox == kv.second)
+			{
+				TempMatrixName = kv.first;
+				return true;
+			}
+			else
+				return false;
+		})
+	)
+	{
+		UpdateDimensionTextbox(m_DimensionX_Textboxes[TempMatrixName], TempMatrixName);
+	}	
+	else if (std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
+		{
+			if (m_TempDimensionTextbox == kv.second)
+			{
+				TempMatrixName = kv.first;
+				return true;
+			}
+			else
+				return false;
+		})
+	)
+	{
+		UpdateDimensionTextbox(m_DimensionY_Textboxes[TempMatrixName], TempMatrixName);
+	}
+		
 }
-
 
 void MatrixCalculator::UpdateMousePosition()
 {
@@ -283,7 +348,18 @@ void MatrixCalculator::UpdateMousePosition()
 
 void MatrixCalculator::UpdateMouseLook()
 {
-	if (std::any_of(m_Matrices["MATRIX_A"].begin(), m_Matrices["MATRIX_A"].end(), [&](const auto& x) { return x->Contains(m_MousePos); }))
+	if (std::any_of(m_Matrices.begin(), m_Matrices.end(), [&](const auto& kv)
+		{
+			return std::any_of(kv.second.begin(), kv.second.end(), [&](const auto& x)
+				{
+					if (x->Contains(m_MousePos))
+					{
+						return true;
+					}
+					else
+						return false;
+				});
+		}))
 	{
 		if (m_Cursor.loadFromSystem(sf::Cursor::Text) && !m_MouseTextMatrixAFlag)
 		{
@@ -300,7 +376,27 @@ void MatrixCalculator::UpdateMouseLook()
 		}
 	}
 
-	if (m_DimensionX_Textboxes["MATRIX_A"]->Contains(m_MousePos) || m_DimensionY_Textboxes["MATRIX_A"]->Contains(m_MousePos))
+	if (std::any_of(m_DimensionX_Textboxes.begin(), m_DimensionX_Textboxes.end(), [&](const auto& kv)
+		{
+			if (kv.second->Contains(m_MousePos))
+			{
+				return true;
+			}
+			else
+				return false;
+
+		}) || 
+
+		std::any_of(m_DimensionY_Textboxes.begin(), m_DimensionY_Textboxes.end(), [&](const auto& kv)
+		{
+			if (kv.second->Contains(m_MousePos))
+			{
+				return true;
+			}
+			else
+				return false;
+		})
+	)
 	{
 		if (m_Cursor.loadFromSystem(sf::Cursor::Text) && !m_MouseTextDimensionsFlag)
 		{
@@ -345,7 +441,6 @@ void MatrixCalculator::UpdateTextbox(gui::TextBox* Textbox)
 			m_ActiveTextbox->Select(false);
 			m_ActiveTextbox->Update();
 		}
-		std::cout << "Elo1\n";
 		m_TempDimensionTextbox = m_ActiveTextbox;
 		m_ActiveTextbox = Textbox;
 		m_ActiveTextbox->Select(true);
@@ -354,33 +449,32 @@ void MatrixCalculator::UpdateTextbox(gui::TextBox* Textbox)
 	{
 		if (!m_ActiveTextbox->Contains(m_MousePos) && !Textbox->Contains(m_MousePos))
 		{
-			std::cout << "Elo2\n";
 			m_ActiveTextbox->Select(false);
 			m_ActiveTextbox->Update();
 			m_TempDimensionTextbox = m_ActiveTextbox;
 			m_ActiveTextbox = nullptr;
-			std::cout << "Elo3\n";
 		}
 	}
 }
 
-void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox)
+void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox, const std::string& MatrixName)
 {
 	std::cout << "Halo\n";
-	std::string TextX = m_DimensionX_Textboxes["MATRIX_A"]->GetText();
-	std::string TextY = m_DimensionY_Textboxes["MATRIX_A"]->GetText();
+
+	std::string TextX = m_DimensionX_Textboxes[MatrixName]->GetText();
+	std::string TextY = m_DimensionY_Textboxes[MatrixName]->GetText();
 	if (TextX == "")
 	{
 		TextX = "1";
-		if (DimensionTextbox == m_DimensionX_Textboxes["MATRIX_A"])
-			m_DimensionX_Textboxes["MATRIX_A"]->SetText(1);
+		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
+			m_DimensionX_Textboxes[MatrixName]->SetText(1);
 	}
 
 	if (TextY == "")
 	{
 		TextY = "1";
-		if (DimensionTextbox == m_DimensionY_Textboxes["MATRIX_A"])
-			m_DimensionY_Textboxes["MATRIX_A"]->SetText(1);
+		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
+			m_DimensionY_Textboxes[MatrixName]->SetText(1);
 	}
 
 	int rows = std::stoi(TextX);
@@ -389,36 +483,36 @@ void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox)
 	if (rows <= 0)
 	{
 		rows = 1;
-		if (DimensionTextbox == m_DimensionX_Textboxes["MATRIX_A"])
-			m_DimensionX_Textboxes["MATRIX_A"]->SetText(1);
+		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
+			m_DimensionX_Textboxes[MatrixName]->SetText(1);
 	}
 	else if (rows > 6)
 	{
 		rows = 6;
-		if (DimensionTextbox == m_DimensionX_Textboxes["MATRIX_A"])
-			m_DimensionX_Textboxes["MATRIX_A"]->SetText(6);
+		if (DimensionTextbox == m_DimensionX_Textboxes[MatrixName])
+			m_DimensionX_Textboxes[MatrixName]->SetText(6);
 	}
 
 	if (columns <= 0)
 	{
 		columns = 1;
-		if (DimensionTextbox == m_DimensionY_Textboxes["MATRIX_A"])
-			m_DimensionY_Textboxes["MATRIX_A"]->SetText(1);
+		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
+			m_DimensionY_Textboxes[MatrixName]->SetText(1);
 	}
 	else if (columns > 6)
 	{
 		columns = 6;
-		if (DimensionTextbox == m_DimensionY_Textboxes["MATRIX_A"])
-			m_DimensionY_Textboxes["MATRIX_A"]->SetText(6);
+		if (DimensionTextbox == m_DimensionY_Textboxes[MatrixName])
+			m_DimensionY_Textboxes[MatrixName]->SetText(6);
 	}
 
-	if (m_Matrices["MATRIX_A"].size() / rows != columns)
+	if (m_Matrices[MatrixName].size() / rows != columns)
 	{
 		std::cout << "Halo1\n";
 		m_ActiveTextbox = nullptr;
-		for (auto e : m_Matrices["MATRIX_A"])
+		for (auto e : m_Matrices[MatrixName])
 			delete e;
-		m_Matrices["MATRIX_A"].clear();
+		m_Matrices[MatrixName].clear();
 		int b = ((columns) * 60 + (columns - 1) * 10) / 2;
 		sf::Vector2f TempPos;
 
@@ -426,31 +520,32 @@ void MatrixCalculator::UpdateDimensionTextbox(gui::TextBox* DimensionTextbox)
 		{
 			for (int j = 0; j < columns; j++)
 			{
-				if (m_Matrices["MATRIX_A"].empty())
+				if (m_Matrices[MatrixName].empty())
 				{
-					m_Matrices["MATRIX_A"].push_back(new gui::TextBox(15, sf::Color::Black, { m_DimensionXMatrixTextbox - b, m_DimensionYMatrixTextbox }, { 60, 25 }));
-					TempPos = m_Matrices["MATRIX_A"].back()->GetPosition();
+					m_Matrices[MatrixName].push_back(new gui::TextBox(15, sf::Color::Black, { m_MatrixPositions[MatrixName].x - b, m_MatrixPositions[MatrixName].y }, {60, 25}));
+					TempPos = m_Matrices[MatrixName].back()->GetPosition();
 				}
 				else
-					m_Matrices["MATRIX_A"].push_back(new gui::TextBox(15, sf::Color::Black, { TempPos.x + j * 70, TempPos.y + i * 35.f }, { 60, 25 }));
-				//m_Matrix.back()->SetLimit(true, 6);
+					m_Matrices[MatrixName].push_back(new gui::TextBox(15, sf::Color::Black, { TempPos.x + j * 70, TempPos.y + i * 35.f }, { 60, 25 }));
 			}
 		}
-		//UpdateMousePosition();
-		auto it = std::find_if(m_Matrices["MATRIX_A"].begin(), m_Matrices["MATRIX_A"].end(), [&](const auto& x) { return x->Contains(m_MousePos); });
-		if (it != m_Matrices["MATRIX_A"].end())
+
+		UpdateLines(MatrixName, rows, columns);
+
+		auto it = std::find_if(m_Matrices[MatrixName].begin(), m_Matrices[MatrixName].end(), [&](const auto& x) { return x->Contains(m_MousePos); });
+		if (it != m_Matrices[MatrixName].end())
 		{
 			m_ActiveTextbox = *it;
 			m_ActiveTextbox->Select(true);
 		}
-		else if (m_DimensionX_Textboxes["MATRIX_A"]->Contains(m_MousePos))
+		else if (m_DimensionX_Textboxes[MatrixName]->Contains(m_MousePos))
 		{
-			m_ActiveTextbox = m_DimensionX_Textboxes["MATRIX_A"];
+			m_ActiveTextbox = m_DimensionX_Textboxes[MatrixName];
 			m_ActiveTextbox->Select(true);
 		}
-		else if (m_DimensionY_Textboxes["MATRIX_A"]->Contains(m_MousePos))
+		else if (m_DimensionY_Textboxes[MatrixName]->Contains(m_MousePos))
 		{
-			m_ActiveTextbox = m_DimensionY_Textboxes["MATRIX_A"];
+			m_ActiveTextbox = m_DimensionY_Textboxes[MatrixName];
 			m_ActiveTextbox->Select(true);
 		}
 
@@ -471,17 +566,18 @@ void MatrixCalculator::UpdateRadioButton(gui::RadioButton* RadioButton)
 	}
 }
 
-void MatrixCalculator::UpdateLines()
+void MatrixCalculator::UpdateLines(const std::string& MatrixName, const int& rows, const int& columns)
 {
 
 
-	//int a = ((rows) * 25 + (rows - 1) * 10);
-	//int b = ((columns) * 60 + (columns - 1) * 10) / 2;
 
-	//m_Lines["MATRIX_A"].first = sf::RectangleShape(sf::Vector2f(3, a + 10));
-	//m_Lines["MATRIX_A"].first.setPosition({ m_Matrix.front()->GetPosition().x - 10, m_Matrix.front()->GetPosition().y - 5 });
-	//m_Lines["MATRIX_A"].second = sf::RectangleShape(sf::Vector2f(3, a + 10));
-	//m_Lines["MATRIX_A"].second.setPosition({ m_Matrix.front()->GetPosition().x + 2 * b + 7, m_Matrix.front()->GetPosition().y - 5 });
+	int a = ((rows) * 25 + (rows - 1) * 10);
+	int b = ((columns) * 60 + (columns - 1) * 10) / 2;
+
+	m_Lines[MatrixName].first = sf::RectangleShape(sf::Vector2f(3, a + 10));
+	m_Lines[MatrixName].first.setPosition({ m_Matrices[MatrixName].front()->GetPosition().x - 10, m_Matrices[MatrixName].front()->GetPosition().y - 5});
+	m_Lines[MatrixName].second = sf::RectangleShape(sf::Vector2f(3, a + 10));
+	m_Lines[MatrixName].second.setPosition({ m_Matrices[MatrixName].front()->GetPosition().x + 2 * b + 7, m_Matrices[MatrixName].front()->GetPosition().y - 5 });
 }
 
 void MatrixCalculator::Update()
@@ -495,11 +591,16 @@ void MatrixCalculator::Update()
 
 void MatrixCalculator::RenderGui()
 {
-	for (auto e : m_Matrices["MATRIX_A"])
-		e->Render(m_Window);
+	for (auto& kv : m_Matrices)
+		for (auto& e : kv.second)
+			e->Render(m_Window);
 
-	m_DimensionX_Textboxes["MATRIX_A"]->Render(m_Window);
-	m_DimensionY_Textboxes["MATRIX_A"]->Render(m_Window);
+	for (auto& kv : m_DimensionX_Textboxes)
+		kv.second->Render(m_Window);
+
+	for (auto& kv : m_DimensionY_Textboxes)
+		kv.second->Render(m_Window);
+
 	for (auto& kv : m_TextsCharX)
 		m_Window->draw(kv.second);
 
@@ -512,7 +613,6 @@ void MatrixCalculator::RenderGui()
 		m_Window->draw(kv.second.second);
 	}
 		
-
 	for (auto e : m_RadioButtons)
 		e->Render(m_Window);
 }

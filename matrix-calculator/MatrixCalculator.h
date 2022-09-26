@@ -32,6 +32,7 @@ private:
 	
 	float m_DimensionXMatrixTextbox;
 	float m_DimensionYMatrixTextbox;
+	std::unordered_map<std::string, sf::Vector2f> m_MatrixPositions;
 
 	gui::RadioButton* m_ActiveRadioButton;
 	std::vector<gui::RadioButton*> m_RadioButtons;
@@ -50,6 +51,7 @@ private:
 	void InitWindow();
 	void InitBackground();
 	void InitGui();
+	void InitMatrix(const std::string&, const sf::Vector2f&);
 
 public:
 	MatrixCalculator();
@@ -60,9 +62,9 @@ public:
 	void UpdateMousePosition();
 	void UpdateMouseLook();
 	void UpdateTextbox(gui::TextBox*);
-	void UpdateDimensionTextbox(gui::TextBox*);
+	void UpdateDimensionTextbox(gui::TextBox*, const std::string&);
 	void UpdateRadioButton(gui::RadioButton*);
-	void UpdateLines();
+	void UpdateLines(const std::string&, const int&, const int&);
 
 	void RenderGui();
 
