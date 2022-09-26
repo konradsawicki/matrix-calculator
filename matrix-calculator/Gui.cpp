@@ -210,7 +210,7 @@ gui::TextBox::TextBox(const int& CharSize, sf::Color Color, const sf::Vector2f& 
 		m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
 		m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
 	);
-
+	SetLimit(true, 6);
 }
 
 void gui::TextBox::InputLogic(const int& CharTyped)
@@ -301,6 +301,17 @@ void gui::TextBox::Type(sf::Event Event)
 	}
 }
 
+void gui::TextBox::SetText(int Text)
+{
+	m_Text.str(std::string());
+	m_Text << Text;
+	m_Textbox.setString(m_Text.str());
+	m_Textbox.setPosition(
+		m_TextboxBackground.getPosition().x + m_TextboxBackground.getSize().x / 2.f - m_Textbox.getGlobalBounds().width / 2.f,
+		m_TextboxBackground.getPosition().y + m_TextboxBackground.getSize().y / 2.f - 10
+	);
+}
+
 void gui::TextBox::UpdateTextPosition()
 {
 	m_Textbox.setPosition(
@@ -348,11 +359,11 @@ gui::RadioButton::RadioButton(const float& Radius, const sf::Vector2f& Pos, cons
 	m_InnerCircle.setOrigin({ InnerRadius, InnerRadius });
 	m_InnerCircle.setPosition(Pos);
 
-	m_OuterCircle.setFillColor(sf::Color(0, 0, 0, 0));
+	m_OuterCircle.setFillColor(sf::Color::Transparent);
 	m_OuterCircle.setOutlineColor(sf::Color(152, 152, 156));
 	m_OuterCircle.setOutlineThickness(2);
 
-	m_InnerCircle.setFillColor(sf::Color(0, 0, 0, 0));
+	m_InnerCircle.setFillColor(sf::Color::Transparent);
 
 	m_FontLight.loadFromFile("Fonts/font1.ttf");
 	m_FontBold.loadFromFile("Fonts/font1_bold.ttf");
@@ -362,7 +373,7 @@ gui::RadioButton::RadioButton(const float& Radius, const sf::Vector2f& Pos, cons
 	m_Text.setString(Text);
 	m_Text.setPosition(Pos + sf::Vector2f(Radius + 5.f, -Radius));
 
-	m_ButtonBackground.setFillColor(sf::Color(0, 0, 0, 0));
+	m_ButtonBackground.setFillColor(sf::Color::Transparent);
 	m_ButtonBackground.setSize({ 2 * Radius + 5.f + m_Text.getGlobalBounds().width, 2 * Radius });
 	m_ButtonBackground.setPosition({ Pos.x - Radius, Pos.y - Radius });
 }
@@ -380,6 +391,7 @@ void gui::RadioButton::SetActive()
 
 	m_InnerCircle.setFillColor(sf::Color::White);
 	m_Text.setFont(m_FontBold);
+	m_Text.setFillColor(sf::Color::Yellow);
 }
 
 void gui::RadioButton::SetInactive()
@@ -388,8 +400,9 @@ void gui::RadioButton::SetInactive()
 	m_OuterCircle.setOutlineColor(sf::Color::White);
 	m_OuterCircle.setOutlineThickness(1);
 
-	m_InnerCircle.setFillColor(sf::Color(0, 0, 0, 0));
+	m_InnerCircle.setFillColor(sf::Color::Transparent);
 	m_Text.setFont(m_FontLight);
+	m_Text.setFillColor(sf::Color::White);
 }
 
 bool gui::RadioButton::IsActive()

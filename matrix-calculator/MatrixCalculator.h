@@ -17,7 +17,21 @@ private:
 
 	gui::TextBox* m_ActiveTextbox;
 	gui::TextBox* m_MouseTextbox;
-	std::vector<gui::TextBox*> m_Matrix;
+	gui::TextBox* m_TempDimensionTextbox;
+
+	std::unordered_map<std::string, std::vector<gui::TextBox*>> m_Matrices;
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>> m_Lines;
+
+	std::unordered_map<std::string, gui::TextBox*> m_DimensionX_Textboxes;
+	std::unordered_map<std::string, gui::TextBox*> m_DimensionY_Textboxes;
+
+	sf::Font m_TextFont;
+	std::unordered_map<std::string, sf::Text> m_TextsCharX;
+	std::unordered_map<std::string, sf::Text> m_MatrixNames;
+
+	
+	float m_DimensionXMatrixTextbox;
+	float m_DimensionYMatrixTextbox;
 
 	gui::RadioButton* m_ActiveRadioButton;
 	std::vector<gui::RadioButton*> m_RadioButtons;
@@ -25,9 +39,13 @@ private:
 
 
 	bool m_ActiveFlag;
-	bool m_MouseTextFlag;
+	bool m_MouseTextMatrixAFlag;
+	bool m_MouseTextMatrixBFlag;
+	bool m_MouseTextDimensionsFlag;
 	bool m_MouseHandFlag;
+	bool m_DimensionsChangeFlag;
 
+	int id = 0;
 	// Initializer functions
 	void InitWindow();
 	void InitBackground();
@@ -41,6 +59,10 @@ public:
 	void UpdateGui();
 	void UpdateMousePosition();
 	void UpdateMouseLook();
+	void UpdateTextbox(gui::TextBox*);
+	void UpdateDimensionTextbox(gui::TextBox*);
+	void UpdateRadioButton(gui::RadioButton*);
+	void UpdateLines();
 
 	void RenderGui();
 

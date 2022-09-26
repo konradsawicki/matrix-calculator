@@ -10,6 +10,7 @@
 #include <chrono>
 #include <sstream>
 #include <thread>
+#include <unordered_map>
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -108,6 +109,7 @@ namespace gui
 		
 		sf::Vector2f GetPosition();
 		std::string GetText();
+		void SetText(int);
 
 		void Type(sf::Event);
 
