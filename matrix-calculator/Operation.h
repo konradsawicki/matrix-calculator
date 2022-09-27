@@ -10,11 +10,17 @@ namespace op
 	double det(const std::vector<double>&);
 	void transpose(std::vector<double>&);
 	std::vector<double> dop(const std::vector<double>&);
+	float MatrixName_PosX = Position.x - 30.f;
+	float MatrixName_PosY = Position.y - 60.f;
+	sf::Font TextFont;
 
 	public:
+		Operation();
 		virtual void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 		const std::unordered_map<std::string, gui::TextBox*>&,
-		const std::unordered_map<std::string, gui::TextBox*>&) = 0;
+		const std::unordered_map<std::string, gui::TextBox*>&,
+		std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) = 0;
 	};
 
 
@@ -27,7 +33,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 
 
@@ -40,7 +48,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 
 
@@ -53,7 +63,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 
 
@@ -66,7 +78,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 
 
@@ -78,7 +92,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 
 
@@ -90,7 +106,9 @@ namespace op
 	public:
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
-			const std::unordered_map<std::string, gui::TextBox*>&) override;
+			const std::unordered_map<std::string, gui::TextBox*>&,
+			std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>&,
+			std::unordered_map<std::string, sf::Text>&) override;
 	};
 }
 

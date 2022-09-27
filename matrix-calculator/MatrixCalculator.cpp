@@ -165,7 +165,7 @@ void MatrixCalculator::UpdateSFMLEvents()
 					UpdateRadioButton(*it2);
 
 				if (m_CalculateButton->Contains(m_MousePos) && m_ActiveRadioButton)
-					m_Operations[m_ActiveRadioButton->GetText()]->Calculate(m_Matrices, m_RowTextboxes, m_ColumnTextboxes);
+					m_Operations[m_ActiveRadioButton->GetText()]->Calculate(m_Matrices, m_RowTextboxes, m_ColumnTextboxes, m_Lines, m_MatrixNames);
 			}
 			break;
 		case sf::Event::TextEntered:

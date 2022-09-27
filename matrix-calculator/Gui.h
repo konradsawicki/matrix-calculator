@@ -80,8 +80,6 @@ namespace gui
 		TextBox() = default;
 		TextBox(const int&, sf::Color, const sf::Vector2f&, const sf::Vector2f&);
 
-	
-
 		void SetLimit(const bool&);
 		void SetLimit(const bool&, const int&);
 

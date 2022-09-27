@@ -8,6 +8,17 @@ auto lambda = [](const auto& kv)
 		});
 };
 
+auto lambda2 = [](const auto& z)
+{
+	return z->GetWrongValueFlag() || (z->GetText() == "");
+};
+
+op::Operation::Operation()
+{
+	TextFont.loadFromFile("Fonts/font1_bold.ttf");
+
+}
+
 double op::Operation::det(const std::vector<double>& matrix)
 {
 	int rows = sqrt(matrix.size());
@@ -92,7 +103,9 @@ std::vector<double> op::Operation::dop(const std::vector<double>& matrix)
 
 void op::Addition::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-		const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+		const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {	
 	if (!Matrices["Result"].empty())
 	{
@@ -133,7 +146,9 @@ void op::Addition::Calculate(std::unordered_map<std::string, std::vector<gui::Te
 
 void op::Substraction::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {
 	if (!Matrices["Result"].empty())
 	{
@@ -174,7 +189,9 @@ void op::Substraction::Calculate(std::unordered_map<std::string, std::vector<gui
 
 void op::Multiplication::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {
 	if (!Matrices["Result"].empty())
 	{
@@ -232,7 +249,9 @@ void op::Multiplication::Calculate(std::unordered_map<std::string, std::vector<g
 
 void op::Transposition::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {
 	if (!Matrices["Result"].empty())
 	{
@@ -240,7 +259,7 @@ void op::Transposition::Calculate(std::unordered_map<std::string, std::vector<gu
 			delete e;
 		Matrices["Result"].clear();
 	}
-	if (std::none_of(Matrices.begin(), Matrices.end(), lambda))
+	if (std::none_of(Matrices["Matrix A"].begin(), Matrices["Matrix A"].end(), lambda2))
 	{
 		std::cout << "Transposition!\n";
 
@@ -277,7 +296,9 @@ void op::Transposition::Calculate(std::unordered_map<std::string, std::vector<gu
 
 void op::Determinant::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {
 	if (!Matrices["Result"].empty())
 	{
@@ -286,7 +307,7 @@ void op::Determinant::Calculate(std::unordered_map<std::string, std::vector<gui:
 		Matrices["Result"].clear();
 	}
 	if (RowTextboxes.at("Matrix A")->GetText() == ColumnTextboxes.at("Matrix A")->GetText() &&
-		std::none_of(Matrices.begin(), Matrices.end(), lambda))
+		std::none_of(Matrices["Matrix A"].begin(), Matrices["Matrix A"].end(), lambda2))
 	{
 		std::cout << "Determinant!\n";
 		std::vector<double> TempMatrixA;
@@ -308,7 +329,9 @@ void op::Determinant::Calculate(std::unordered_map<std::string, std::vector<gui:
 
 void op::Inversion::Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>& Matrices,
 	const std::unordered_map<std::string, gui::TextBox*>& RowTextboxes,
-	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes)
+	const std::unordered_map<std::string, gui::TextBox*>& ColumnTextboxes,
+	std::unordered_map<std::string, std::pair<sf::RectangleShape, sf::RectangleShape>>& Lines,
+	std::unordered_map<std::string, sf::Text>& MatrixNames)
 {
 	if (!Matrices["Result"].empty())
 	{
@@ -317,7 +340,7 @@ void op::Inversion::Calculate(std::unordered_map<std::string, std::vector<gui::T
 		Matrices["Result"].clear();
 	}
 	if (RowTextboxes.at("Matrix A")->GetText() == ColumnTextboxes.at("Matrix A")->GetText() &&
-		std::none_of(Matrices.begin(), Matrices.end(), lambda))
+		std::none_of(Matrices["Matrix A"].begin(), Matrices["Matrix A"].end(), lambda2))
 
 	{
 		std::cout << "Inversion!\n";
@@ -352,6 +375,17 @@ void op::Inversion::Calculate(std::unordered_map<std::string, std::vector<gui::T
 					Matrices["Result"][y * columns + x]->SetText(result[y * columns + x]);
 				}
 			}
+			int a = ((rows) * 25 + (rows - 1) * 10);
+
+			Lines["Result"].first = sf::RectangleShape(sf::Vector2f(3, a + 10));
+			Lines["Result"].first.setPosition({ Matrices["Result"].front()->GetPosition().x - 10, Matrices["Result"].front()->GetPosition().y - 5 });
+			Lines["Result"].second = sf::RectangleShape(sf::Vector2f(3, a + 10));
+			Lines["Result"].second.setPosition({ Matrices["Result"].front()->GetPosition().x + 2 * b + 7, Matrices["Result"].front()->GetPosition().y - 5 });
+
+			MatrixNames["Result"].setFont(TextFont);
+			MatrixNames["Result"].setCharacterSize(20);
+			MatrixNames["Result"].setString("Result");
+			MatrixNames["Result"].setPosition({ MatrixName_PosX, MatrixName_PosY - 30 });
 		}
 	}
 }
