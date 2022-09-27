@@ -10,6 +10,7 @@
 #include <sstream>
 #include <thread>
 #include <unordered_map>
+#include <functional>
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -51,26 +52,6 @@ namespace gui
 
 		void SetText(const sf::String& Text);
 		void setOutlineThickness(int);
-
-		void Update(const sf::Vector2f&);
-		void Render(sf::RenderTarget*);
-	};
-
-	class DropDownList
-	{
-	private:
-		gui::Button* m_ActiveElement;
-		std::vector<gui::Button*> m_List;
-		bool m_ShowList;
-
-		sf::CircleShape m_Triangle;
-
-	public:
-		DropDownList(float, float, float, float, std::vector<std::string>, unsigned, unsigned);
-		virtual ~DropDownList();
-
-		std::string GetActiveElementText() const;
-		void UpdateButtonState(const sf::Vector2f&);
 
 		void Update(const sf::Vector2f&);
 		void Render(sf::RenderTarget*);

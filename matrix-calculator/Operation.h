@@ -6,12 +6,12 @@ namespace op
 	class Operation
 	{
 	protected:
+	sf::Vector2f Position = { 1600 - 335.f, 380.f };
+	double det(const std::vector<double>&);
+	void transpose(std::vector<double>&);
+	std::vector<double> dop(const std::vector<double>&);
 
-		
 	public:
-		Operation();
-		virtual ~Operation();
-
 		virtual void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 		const std::unordered_map<std::string, gui::TextBox*>&,
 		const std::unordered_map<std::string, gui::TextBox*>&) = 0;
@@ -25,7 +25,6 @@ namespace op
 
 
 	public:
-		Addition();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
@@ -39,7 +38,6 @@ namespace op
 
 
 	public:
-		Substraction();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
@@ -53,7 +51,6 @@ namespace op
 
 
 	public:
-		Multiplication();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
@@ -67,7 +64,6 @@ namespace op
 
 
 	public:
-		Transposition();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
@@ -79,9 +75,7 @@ namespace op
 	{
 	private:
 
-
 	public:
-		Determinant();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
@@ -94,7 +88,6 @@ namespace op
 
 
 	public:
-		Inversion();
 		void Calculate(std::unordered_map<std::string, std::vector<gui::TextBox*>>&,
 			const std::unordered_map<std::string, gui::TextBox*>&,
 			const std::unordered_map<std::string, gui::TextBox*>&) override;
